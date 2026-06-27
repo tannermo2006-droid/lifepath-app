@@ -1,0 +1,30 @@
+:root {
+  color-scheme: dark;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  background: #0a0a0f;
+  color: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #0a0a0f;
+  color: #ffffff;
+}
+
+button {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(127, 119, 221, 0.35);
+}
