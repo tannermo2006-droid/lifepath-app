@@ -37,6 +37,8 @@ const cards = [
 function App() {
   const [activeQuiz, setActiveQuiz] = useState(null);
   const [completed, setCompleted] = useState({});
+  const [responses, setResponses] = useState({});
+  const [showDashboard, setShowDashboard] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [animatedProgress, setAnimatedProgress] = useState(0);
   const [isProgressAnimating, setIsProgressAnimating] = useState(false);
@@ -87,6 +89,10 @@ function App() {
       const raw = localStorage.getItem('lp_completed');
       if (raw) setCompleted(JSON.parse(raw));
     } catch (e) {}
+    try {
+      const raw2 = localStorage.getItem('lp_responses');
+      if (raw2) setResponses(JSON.parse(raw2));
+    } catch (e) {}
   }, []);
 
   // Life Goals quiz questions
@@ -135,6 +141,12 @@ function App() {
 
   const finishQuiz = () => {
     // For now we just mark complete and close
+    // save responses then mark complete
+    setResponses((prev) => {
+      const next = { ...prev, 'life-goals': answers };
+      try { localStorage.setItem('lp_responses', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
     markComplete('life-goals');
     // reset quiz state for next time
     setQIndex(0);
@@ -186,6 +198,11 @@ function App() {
   };
 
   const finishMoneyQuiz = () => {
+    setResponses((prev) => {
+      const next = { ...prev, 'money-goals': mAnswers };
+      try { localStorage.setItem('lp_responses', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
     markComplete('money-goals');
     setMQIndex(0);
     setMAnswers(Array(moneyGoalsQuestions.length).fill(null));
@@ -236,6 +253,11 @@ function App() {
   };
 
   const finishWorkQuiz = () => {
+    setResponses((prev) => {
+      const next = { ...prev, 'work-career': wAnswers };
+      try { localStorage.setItem('lp_responses', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
     markComplete('work-career');
     setWQIndex(0);
     setWAnswers(Array(workCareerQuestions.length).fill(null));
@@ -286,6 +308,11 @@ function App() {
   };
 
   const finishIncomeQuiz = () => {
+    setResponses((prev) => {
+      const next = { ...prev, 'income-expenses': iAnswers };
+      try { localStorage.setItem('lp_responses', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
     markComplete('income-expenses');
     setIQIndex(0);
     setIAnswers(Array(incomeExpensesQuestions.length).fill(null));
@@ -336,6 +363,11 @@ function App() {
   };
 
   const finishEducationQuiz = () => {
+    setResponses((prev) => {
+      const next = { ...prev, 'education-future': eAnswers };
+      try { localStorage.setItem('lp_responses', JSON.stringify(next)); } catch (e) {}
+      return next;
+    });
     markComplete('education-future');
     setEQIndex(0);
     setEAnswers(Array(educationFutureQuestions.length).fill(null));
@@ -374,6 +406,142 @@ function App() {
     rafId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(rafId);
   }, [progress]);
+
+  // helpers for dashboard values derived from saved responses
+  const moneyResp = responses['money-goals'] || null;
+  const incomeResp = responses['income-expenses'] || null;
+
+  const moneyRetirementLabel = (idx) => {
+    if (!moneyResp) return '—';
+    const opts = moneyGoalsQuestions[0].options;
+    return opts[idx] || '—';
+  };
+
+  const moneyTargetAgeLabel = (idx) => {
+    if (!moneyResp) return '—';
+    const opts = moneyGoalsQuestions[1].options;
+    return opts[idx] || '—';
+  };
+
+  const mapIncomeAfterTaxToNumber = (idx) => {
+    const map = [1200, 2250, 4000, 6500, 9000];
+    return map[idx] || 0;
+  };
+  const mapExpensesToNumber = (idx) => {
+    const map = [800, 1500, 2750, 4250, 6000];
+    return map[idx] || 0;
+  };
+  const mapCarCostToNumber = (idx) => {
+    const map = [0, 150, 450, 800, 1200];
+    return map[idx] || 0;
+  };
+
+  const retirementTargetNumber = () => {
+    if (!moneyResp) return 0;
+    const map = [400000, 750000, 2000000, 4000000, 6000000];
+    const idx = moneyResp[0];
+    return map[idx] || 0;
+  };
+
+  const retirementTargetAge = () => {
+    if (!moneyResp) return 65;
+    const map = [29, 32.5, 37.5, 45, 60];
+    const idx = moneyResp[1];
+    return map[idx] || 60;
+  };
+
+  const currentAge = 30; // assumed for calculations
+
+  const afterTax = incomeResp ? mapIncomeAfterTaxToNumber(incomeResp[1]) : 0;
+  const expenses = incomeResp ? mapExpensesToNumber(incomeResp[2]) : 0;
+  const carCost = incomeResp ? mapCarCostToNumber(incomeResp[3]) : 0;
+  const monthlySurplus = Math.max(0, Math.round(afterTax - expenses - carCost));
+
+  const yearsToTarget = Math.max(1, Math.round(retirementTargetAge() - currentAge));
+  const requiredMonthly = retirementTargetNumber() > 0 ? Math.round(retirementTargetNumber() / (yearsToTarget * 12)) : 0;
+
+  if (showDashboard) {
+    return (
+      <div className={`${styles.app} ${styles.dashboard}`}>
+        <div className={styles.dashboardHeader}>
+          <button className={styles.backButton} onClick={() => setShowDashboard(false)}>← Back</button>
+          <div>
+            <h1>Your life path</h1>
+            <p>Welcome, Tanner — Based on your profile, here is your personalized financial roadmap</p>
+          </div>
+        </div>
+
+        <section className={styles.metricsRow}>
+          <div className={styles.metricCard}>
+            <div className={styles.metricTitle}>Retirement goal</div>
+            <div className={styles.metricValue}>{moneyResp ? moneyGoalsQuestions[0].options[moneyResp[0]] : '—'}</div>
+          </div>
+          <div className={styles.metricCard}>
+            <div className={styles.metricTitle}>Target age</div>
+            <div className={styles.metricValue}>{moneyResp ? moneyGoalsQuestions[1].options[moneyResp[1]] : '—'}</div>
+          </div>
+          <div className={styles.metricCard}>
+            <div className={styles.metricTitle}>Monthly surplus</div>
+            <div className={styles.metricValue}>${monthlySurplus.toLocaleString()}</div>
+          </div>
+        </section>
+
+        <section className={styles.pathSection}>
+          <h3>Your paths to financial freedom</h3>
+          <div className={styles.pathCards}>
+            <div className={`${styles.pathCard} ${styles.pathGreen}`}>
+              <div className={styles.pathPercent}>91%</div>
+              <div className={styles.pathSubtitle}>chance of reaching goal</div>
+              <div className={styles.pathDetail}>Timeframe: {yearsToTarget} yrs</div>
+              <div className={styles.pathDetail}>Required monthly: ${requiredMonthly.toLocaleString()}</div>
+            </div>
+            <div className={`${styles.pathCard} ${styles.pathPurple}`}>
+              <div className={styles.pathPercent}>67%</div>
+              <div className={styles.pathSubtitle}>chance of reaching goal</div>
+              <div className={styles.pathDetail}>Career path: Sales / Trades</div>
+            </div>
+            <div className={`${styles.pathCard} ${styles.pathAmber}`}>
+              <div className={styles.pathPercent}>12%</div>
+              <div className={styles.pathSubtitle}>chance of reaching goal</div>
+              <div className={styles.pathDetail}>Faster timeline, higher risk</div>
+            </div>
+          </div>
+        </section>
+
+        <section className={styles.monthlyBreakdown}>
+          <h3>Monthly breakdown</h3>
+          <div className={styles.breakRow}><span>Income (after tax)</span><strong>${afterTax.toLocaleString()}</strong></div>
+          <div className={styles.breakRow}><span>Minus expenses</span><strong>-${expenses.toLocaleString()}</strong></div>
+          <div className={styles.breakRow}><span>Minus car costs</span><strong>-${carCost.toLocaleString()}</strong></div>
+          <div className={styles.breakTotal}><span>Yours to spend/save</span><strong className={styles.green}>${monthlySurplus.toLocaleString()}</strong></div>
+        </section>
+
+        <section className={styles.jobsSection}>
+          <h3>Highest paying jobs near you (no degree required)</h3>
+          <div className={styles.jobsGrid}>
+            {[
+              {t: 'High-end server', s: '$50,000'},
+              {t: 'Solar sales', s: '$65,000'},
+              {t: 'CDL truck driver', s: '$70,000'},
+              {t: 'IBEW electrician apprentice', s: '$55,000'},
+            ].map((j, i) => (
+              <div key={i} className={styles.jobCard}>
+                <div className={styles.jobTitle}>{j.t}</div>
+                <div className={styles.jobSalary}>{j.s} / yr</div>
+                <div className={styles.jobBadge}>No degree required</div>
+                <button className={styles.startButton}>Learn more</button>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.timelineSection}>
+          <h3>Life timeline</h3>
+          <div className={styles.timeline}>Now → Early milestones → Marriage (early 30s) → Kids (mid 30s) → Financial freedom target</div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className={`${styles.app} ${mounted ? styles.mounted : ''}`}>
@@ -461,7 +629,7 @@ function App() {
             </div>
             <div className={styles.lockPreview}>
               {completeCount === totalSections && (
-                <button className={styles.dashboardButton}>View my dashboard →</button>
+                <button className={styles.dashboardButton} onClick={() => setShowDashboard(true)}>View my dashboard →</button>
               )}
             </div>
           </div>
