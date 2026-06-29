@@ -270,6 +270,9 @@
 .reviewButton:hover { background: #178a5f; transform: translateY(-1px); }
 
 .lockedSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   position: relative;
   overflow: hidden;
   padding: 24px;
@@ -434,42 +437,71 @@
 }
 
 /* Dashboard styles */
-.dashboard { padding: 28px; }
+.dashboard {
+  padding: 32px;
+  min-height: 100vh;
+  overflow-y: auto;
+}
 .dashboardHeader {
   display: flex;
   gap: 18px;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
 }
-.dashboardHeader h1 { margin: 0; font-size: 22px; }
+.dashboardHeader h1 { margin: 0; font-size: 28px; }
 .dashboardHeader p { margin: 0; color: #bfc0d8; }
 
-.metricsRow { display: flex; gap: 16px; margin-bottom: 20px; }
+.dashboardPlaceholder {
+  min-height: 320px;
+  border-radius: 24px;
+  background: #10101a;
+  border: 1px solid #2a2a3a;
+  padding: 32px;
+  display: grid;
+  place-items: center;
+  color: #e2e3f1;
+  text-align: center;
+}
+
+.dashboardPlaceholder h2 {
+  margin: 0 0 16px;
+  font-size: 28px;
+}
+
+.dashboardPlaceholder p {
+  margin: 0;
+  color: #b8b9d4;
+  max-width: 520px;
+}
+
+.metricsRow { display: flex; gap: 16px; margin-bottom: 24px; }
 .metricCard { flex: 1; background: #0f0f16; border-radius: 12px; padding: 16px; border: 1px solid #22222a; }
 .metricTitle { color: #9fa0b8; font-size: 13px; }
 .metricValue { font-size: 20px; font-weight: 800; margin-top: 6px; }
 
-.pathSection { margin: 18px 0; }
+.pathSection { margin: 24px 0; }
 .pathCards { display: flex; gap: 16px; }
-.pathCard { flex: 1; padding: 16px; border-radius: 12px; background: #0f1116; border: 1px solid #22222a; }
+.pathCard { flex: 1; padding: 18px; border-radius: 16px; background: #0f1116; border: 1px solid #22222a; }
 .pathGreen { border-left: 4px solid #1dbf9a; }
 .pathPurple { border-left: 4px solid #7f77dd; }
 .pathAmber { border-left: 4px solid #f6b04a; }
 .pathPercent { font-size: 28px; font-weight: 800; }
-.pathSubtitle { color: #9fa0b8; margin-bottom: 6px; }
-.pathDetail { color: #cfcff2; margin-top: 8px; }
+.pathSubtitle { color: #9fa0b8; margin-bottom: 8px; }
+.pathDetail { color: #cfcff2; margin-top: 10px; }
 
-.monthlyBreakdown { background: #0f1116; padding: 16px; border-radius: 12px; border: 1px solid #22222a; margin: 18px 0; }
-.breakRow { display:flex; justify-content:space-between; padding:6px 0; color:#bfc0d8; }
-.breakTotal { display:flex; justify-content:space-between; padding:10px 0; font-weight:800; border-top:1px dashed rgba(255,255,255,0.03); margin-top:8px; }
+.monthlyBreakdown { background: #0f1116; padding: 20px; border-radius: 16px; border: 1px solid #22222a; margin: 24px 0; }
+.breakRow { display:flex; justify-content:space-between; padding:8px 0; color:#bfc0d8; }
+.breakTotal { display:flex; justify-content:space-between; padding:12px 0; font-weight:800; border-top:1px dashed rgba(255,255,255,0.03); margin-top:10px; }
 .green { color: #1dbf9a; }
 
-.jobsSection { margin: 18px 0; }
-.jobsGrid { display:flex; gap:12px; }
-.jobCard { flex:1; background:#0f1116; padding:12px; border-radius:10px; border:1px solid #22222a; }
+.jobsSection { margin: 24px 0; }
+.jobsGrid { display:flex; gap:16px; flex-wrap: wrap; }
+.jobCard { flex:1; min-width:220px; background:#0f1116; padding:18px; border-radius:16px; border:1px solid #22222a; display:flex; flex-direction:column; gap:12px; }
 .jobTitle { font-weight:700; }
-.jobSalary { color:#bfc0d8; margin:8px 0; }
-.jobBadge { display:inline-block; background: rgba(255,255,255,0.03); color:#cfcff2; padding:6px 8px; border-radius:999px; font-size:12px; margin-bottom:8px; }
+.jobSalary { color:#bfc0d8; margin:0; }
+.jobBadge { display:inline-block; background: rgba(29, 158, 117, 0.12); color:#a8f3d3; padding:6px 8px; border-radius:999px; font-size:12px; margin-bottom:4px; }
+.learnMoreButton { margin-top: auto; background: #1d9e75; color: white; border: none; border-radius: 999px; padding: 10px 14px; cursor: pointer; font-weight: 700; }
+.learnMoreButton:hover { background: #178a5f; }
 
 .timelineSection { margin: 18px 0; }
 .timeline { background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px; border-radius:10px; color:#cfcff2; }
